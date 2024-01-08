@@ -12,7 +12,7 @@ nltk.download('punkt')
 LANGUAGE = "english"
 SENTENCES_COUNT = 5
 
-pdf_path = r"D:/Internship IETE/Codes/AIBA-MODULE 1 CNN DEEP LEARNING.pdf"
+#pdf_path = r"C:\Users\ma782\Desktop\AI project\Internship-AI\parth\ARIF_RESUME.pdf"
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
