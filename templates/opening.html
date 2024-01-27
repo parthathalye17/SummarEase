@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="opening.css">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <style>
+        .col-5 {
+            background-color: #dfc47dd7;
+            box-shadow: 0px 0px 16px 1px rgba(0, 0, 0, 0.25);
+            height: 100vh;
+            padding: 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #heading-1 {
+            text-align: center;
+            font-family: Montserrat;
+            font-style: normal;
+            font-weight: 400;
+            margin-top: 25vh;
+            font-size: 2.75vw;
+        }
+
+        ul {
+            margin-left: 12vw;
+            font-family: Montserrat;
+            font-style: normal;
+            font-weight: 300;
+            font-size: 1vw;
+        }
+
+        #cc {
+            font-family: Montserrat;
+            font-size: 0.75vw;
+            font-style: normal;
+            font-weight: 300;
+            width: 35vw;
+            margin: auto;
+        }
+
+        #heading-2 {
+            text-align: center;
+            font-family: Montserrat;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 3vh;
+            font-size: 2.75vw;
+        }
+
+        .col-7 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url('static/opening_bg.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        /*
+#bx{
+    padding: 10vh;
+    border: 2px solid rgb(150, 0, 152);
+    border-radius: 20px;
+}
+*/
+        #opt_btns {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        #url {
+            background-color: blueviolet;
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            padding: 1vh 1vw;
+            margin: 1vh;
+        }
+
+        #txt {
+            background-color: rgba(82, 81, 83, 1);
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            padding: 1vh 1vw;
+            margin: 1vh;
+        }
+
+        #docx {
+            background-color: rgba(0, 133, 255, 1);
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            padding: 1vh 1vw;
+            margin: 1vh;
+        }
+
+        #pdf {
+            background-color: rgba(255, 84, 84, 1);
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            padding: 1vh 1vw;
+            margin: 1vh;
+        }
+
+        button:hover {
+            -webkit-transform: translate(1.25);
+            transform: scale(1.25);
+            transition: 0.5s;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="row">
+        <div class="col-5">
+            <div>
+                <div class="row">
+                    <h1 id="heading-1">Text Summariser</h1>
+                </div>
+                <div class="row">
+                    <ul>
+                        <li id="feature">Summarise Text</li>
+                        <li id="feature">PDF, URL acceptable</li>
+                        <li id="feature">Keyword analysis</li>
+                        <li id="feature">Recommending related info from Wikipedia</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <p id="cc">This software is developed merely for college project purpose and a tool which can easily be
+                    used by . anyone who . wishes to. We are a non-profitable community.</p>
+            </div>
+        </div>
+        <div class="col-7">
+            <div id="bx">
+                <div class="row">
+                    <h1 id="heading-2">Choose format of data</h1>
+                </div>
+                <div class="row" id="opt_btns">
+                    <div class="col">
+                        <a href="/url"><button id="url">URL</button></a>
+                    </div>
+                    <div class="col">
+                        <a href="/text"><button id="txt">TEXT</button></a>
+                    </div>
+                    <div class="col">
+                        <a href="/pdf"><button id="pdf">PDF</button></a>
+                    </div>
+                    <div class="col">
+                        <a href="/youtube"><button id="pdf">YouTube</button></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>
