@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="ele.css">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+        <style>
+            nav {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+    
+            #dev {
+                margin-top: 2.5vw;
+                margin-right: 2vw;
+                text-decoration: none;
+                color: black;
+                font-family: Montserrat;
+                font-size: 16px;
+            }
+    
+            ul {
+                display: flex;
+                flex-direction: row;
+                list-style-type: none;
+    
+            }
+    
+            #nav_items {
+                text-decoration: none;
+            }
+    
+            li {
+                margin: 2vw;
+                text-decoration: none;
+            }
+    
+            #inactive {
+                font-family: Montserrat;
+                font-size: 20px;
+                font-weight: lighter;
+                color: rgba(101, 101, 101, 1);
+            }
+    
+            #active {
+                font-family: Montserrat;
+                font-size: 24px;
+                font-weight: bolder;
+                color: rgba(89, 1, 130, 1);
+            }
+    
+            #in_a {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                margin-top: 1vw;
+                margin-bottom: 1vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+            }
+    
+            #summ {
+                width: fit-content;
+                margin-left: 4.75vw;
+                margin-top: 1vw;
+                border: 0px;
+                border-radius: 12px;
+                padding: 1vw;
+                background: radial-gradient(277.63% 204.57% at 8.57% 10.11%, #9C20C8 0%, #7B4DC6 100%);
+                color: white;
+            }
+    
+            #summ:hover {
+                -webkit-transform: translate(1.1);
+                transform: scale(1.1);
+                transition: 0.5s;
+            }
+    
+            #op_a {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                margin-top: 1vw;
+                margin-bottom: 1vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+            }
+    
+            #op_c {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                margin-top: 1vw;
+                margin-bottom: 1vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+            }
+    
+            #in_b {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+                margin-top: 1.5vw;
+            }
+    
+            #surf {
+                width: fit-content;
+                margin-left: 4.75vw;
+                margin-top: 1vw;
+                border: 0px;
+                border-radius: 12px;
+                padding: 1vw;
+                background: radial-gradient(277.63% 204.57% at 8.57% 10.11%, #48D198 0%, #36CAC1 100%);
+                color: white;
+            }
+    
+            #surf:hover {
+                -webkit-transform: translate(1.1);
+                transform: scale(1.1);
+                transition: 0.5s;
+            }
+    
+            #op_b {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                margin-top: 1vw;
+                margin-bottom: 5vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+            }
+    
+            #op_a,
+            #op_b,
+            #op_c {
+                display: none;
+            }
+    
+            #in_file {
+                width: 92vw;
+                margin: auto;
+                padding: 1vw;
+                border: 1px solid gray;
+                border-radius: 12px;
+            }
+        </style>
+    <script>
+        function toggleVisibility(...elementIds) {
+            elementIds.forEach(elementId => {
+                var element = document.getElementById(elementId);
+                if (element) {
+                    element.style.display = (element.style.display === 'none') ? 'block' : 'none';
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <a id="nav_items" href="/url">
+                <li id="inactive">URL</li>
+            </a>
+            <a id="nav_items" href="/text">
+                <li id="inactive">TEXT</li>
+            </a>
+            <a id="nav_items" href="/pdf">
+                <li id="inactive">PDF</li>
+            </a>
+            <a id="nav_items" href="/youtube">
+                <li id="active">YouTube</li>
+            </a>
+        </ul>
+        <a id="dev" href="/developers">Developers</a>
+    </nav>
+    <form method="post" action="{{ url_for('youtube') }}" target="_self">
+    <div class="col">
+        <div class="row">
+            <input type="text" name="url_youtube" placeholder="Enter the youtube url here" id="in_a">
+        </div>
+        <div class="row">
+            <button type="submit" id="summ" href="/final_youtube">Summarise</button>
+        </div>
+    </div>
+    </form>
+</body>
+
+</html>
