@@ -1,37 +1,26 @@
-from flask import Flask, render_template, request, session, redirect, url_for
-import nltk
-import requests
+from flask import Flask, render_template, request, session, redirect, url_for, send_from_directory
+import nltk, requests, torch, fitz, os, logging, re, time
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sumy.parsers.html import HtmlParser
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.lsa import LsaSummarizer as Summarizer
-from sumy.nlp.stemmers import Stemmer
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
 import numpy as np
-import fitz
-from sumy.utils import get_stop_words
-import sys
-import os
-import logging
-import re
-import pandas as pd 
+import google.generativeai as genai
+from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from transformers import pipeline, BartForConditionalGeneration, BartTokenizer
-import time
-from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from flask_session import Session
+from gtts import gTTS
 
 
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 nltk.download('stopwords')
 nltk.download('punkt')
 
@@ -54,14 +43,10 @@ def developers():
 
 
 def txxt(letters,SENTENCES_COUNT):
-    parser = PlaintextParser.from_string(letters, Tokenizer(LANGUAGE))
-    stemmer = Stemmer(LANGUAGE)
-    summarized_text = ""
-    summarizer = Summarizer(stemmer)
-    summarizer.stop_words = get_stop_words(LANGUAGE)
-    for sentence in summarizer(parser.document, SENTENCES_COUNT):
-        summarized_text += str(sentence)
-    return summarized_text
+    summ = "Summarize the above sentences in " +str(SENTENCES_COUNT)+" lines"
+    question = letters + summ
+    response =  genai.GenerativeModel("gemini-pro").generate_content(question)
+    return response.text
 
 
 def preprocess_text(text):
@@ -80,14 +65,27 @@ def perform_keyword_analysis(text):
     tfidf_scores = tfidf_matrix.toarray()[0]
     keyword_scores = [(feature_names[i], tfidf_scores[i]) for i in range(len(feature_names))]
     keyword_scores = sorted(keyword_scores, key=lambda x: x[1], reverse=True)
-    top_keywords = [keyword for keyword, score in keyword_scores[:7]]
+    top_keywords = [keyword for keyword, score in keyword_scores[:8]]
     return top_keywords
+
+
+def english_text_to_mp3(text):
+    print("Generating audio...")
+    language = 'en'
+    speed = False
+    output_path = os.path.join(app.root_path, 'static', 'output.mp3')
+    tts = gTTS(text=text, lang=language, slow=speed)
+    tts.save(output_path)
+    return "Done"
+
+@app.route('/get_audio', methods=['GET'])
+def serve_audio():
+    return send_from_directory('static','output.mp3')
 
 
 @app.route('/text', methods=['POST','GET'])
 def text():
     answer1=""
-    webscraped=[]
     keywords=[]
     if request.method == 'POST':
         text = request.form.get('input_text')
@@ -111,14 +109,15 @@ def final_text():
     webscraped=[]
     keywords = session['keywords']
     summary = session['summary']    
+    res = english_text_to_mp3(summary)
+    print(res)
     if request.method=='POST':
         key_words = request.form.get('keywordz_text')
         keyword_list = key_words.split(',')
         for kw in keyword_list:
             if kw:
-                wikipedia_url = 'https://en.wikipedia.org/wiki/'+kw
-                web_scrape = scrape_wikipedia(wikipedia_url)
-                if web_scrape and len(web_scrape)>65:
+                web_scrape = scrape_wikipedia(kw,summary)
+                if web_scrape:
                     webscraped.append(web_scrape)
                 else:
                     empty_message = f"Sorry, couldn't find much information regarding '{kw}' try using differnet word or relevant a combination of this word!"
@@ -131,18 +130,10 @@ def final_text():
 
 def pdf_xyz(pdf_path,SENTENCES_COUNT):
     pdf_text = extract_text_from_pdf(pdf_path)
-    sentences = nltk.sent_tokenize(pdf_text)
-    text_for_summarization = " ".join(sentences)
-    sys.stdout.reconfigure(encoding='utf-8')
-    parser = PlaintextParser.from_string(text_for_summarization, Tokenizer(LANGUAGE))
-    stemmer = Stemmer(LANGUAGE)
-    summarizer = Summarizer(stemmer)
-    summarizer.stop_words = get_stop_words(LANGUAGE)
-    answer=""
-    for sentence in summarizer(parser.document, SENTENCES_COUNT):
-        answer+= str(sentence)
-    return answer
-
+    summ = "Summarizve the above sentences in " +str(SENTENCES_COUNT)+" lines"
+    question = pdf_text +" "+ summ
+    response =  genai.GenerativeModel("gemini-pro").generate_content(question)
+    return response.text
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(stream=pdf_path.read(), filetype='pdf')
@@ -179,15 +170,15 @@ def final_pdf():
     webscraped=[]
     keywords = session['keywords']
     summary = session['summary']    
+    res = english_text_to_mp3(summary)
     if request.method=='POST':
         key_words = request.form.get('keywordz_pdf')
         keyword_list = key_words.split(',')
         print(keyword_list)
         for kw in keyword_list:
             if kw:
-                wikipedia_url = 'https://en.wikipedia.org/wiki/'+kw
-                web_scrape = scrape_wikipedia(wikipedia_url)
-                if web_scrape and len(web_scrape)>65:
+                web_scrape = scrape_wikipedia(kw,summary)
+                if web_scrape:
                     webscraped.append(web_scrape)
                 else:
                     empty_message = f"Sorry, couldn't find much information regarding '{kw}' try using differnet word or relevant a combination of this word!"
@@ -195,12 +186,13 @@ def final_pdf():
             else:
                 no_keyword_message = "Enter a keyword!"
                 webscraped.append(no_keyword_message)
+        
     return render_template("final_pdf.html", summarized_text=summary, keyword=keywords, webscrape=webscraped)
 
 
 logging.getLogger("transformers").setLevel(logging.ERROR)
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
-# Set TF_ENABLE_ONEDNN_OPTS to 0 to suppress related warnings
+
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
 model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
@@ -217,7 +209,7 @@ def sentiment_comments(urlll):
     data = []
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--headless")  # If you want to run Chrome in headless mode 
+    chrome_options.add_argument("--headless") 
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -227,14 +219,12 @@ def sentiment_comments(urlll):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-    # Set the path to the chromedriver.exe file
     chrome_options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-    # Initialize the Chrome driver with chrome_options
     driver = webdriver.Chrome(options=chrome_options)
     with driver:
         wait = WebDriverWait(driver, 15)
         driver.get(f"{link}")
-        for _ in range(12):  # You might need to adjust the number of scrolls
+        for _ in range(12):  
             driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
             time.sleep(5)
 
@@ -250,7 +240,7 @@ def sentiment_comments(urlll):
 
 
 def get_video_id(video_url):
-    # Extract video ID from the URL
+
     match = re.search(r"(?<=v=)[\w-]+", video_url)
     return match.group(0) if match else None
 
@@ -316,15 +306,15 @@ def final_youtube():
     webscraped=[]
     keywords = session['keywords']
     summary = session['summary']   
+    res = english_text_to_mp3(summary)
     sentiment = session['sentiments'] 
     if request.method=='POST':
         key_words = request.form.get('keywordz_youtube')
         keyword_list = key_words.split(',')
         for kw in keyword_list:
             if kw:
-                wikipedia_url = 'https://en.wikipedia.org/wiki/'+kw
-                web_scrape = scrape_wikipedia(wikipedia_url)
-                if web_scrape and len(web_scrape)>65:
+                web_scrape = scrape_wikipedia(kw,summary)
+                if web_scrape:
                     webscraped.append(web_scrape)
                 else:
                     empty_message = f"Sorry, couldn't find much information regarding '{kw}' try using differnet word or relevant a combination of this word!"
@@ -332,6 +322,7 @@ def final_youtube():
             else:
                 no_keyword_message = "Enter a keyword!"
                 webscraped.append(no_keyword_message)
+        
     return render_template("final_youtube.html", summarized_text=summary, keyword=keywords, webscrape=webscraped, rating=sentiment)
 
 
@@ -496,6 +487,7 @@ def third_url():
     searchednews=[]
     no_keyword_message="Enter a Keyword!"
     summarized_news = session['summary']
+    res = english_text_to_mp3(summarized_news)
     actual_news = session['webscrapednews']
     keywords = perform_keyword_analysis(summarized_news)
     if request.method=='POST':
@@ -505,9 +497,8 @@ def third_url():
         keyword_list_news = news_keyword.split(',')
         for kw in keyword_list_wiki:
             if kw:
-                wikipedia_url = 'https://en.wikipedia.org/wiki/'+kw
-                web_scrape = scrape_wikipedia(wikipedia_url)
-                if web_scrape and len(web_scrape)>65:
+                web_scrape = scrape_wikipedia(kw,summarized_news)
+                if web_scrape:
                     webscraped.append(web_scrape)
                 else:
                     empty_message = f"Sorry, couldn't find much information regarding '{kw}' try using differnet word or relevant a combination of this word!"
@@ -520,26 +511,14 @@ def third_url():
                 for sentence in sentences:
                     searchednews.append(sentence)
             else:
-                searchednews.append(no_keyword_message)
+                searchednews.append(no_keyword_message)   
     return render_template('third_url.html', keyword=keywords, summarized_text=summarized_news, webscrape=webscraped, search=searchednews)
 
 
-def scrape_wikipedia(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        section_paras = soup.find_all('p')
-        text_list = []
-        for para in section_paras:
-            para_text = para.get_text().strip()
-            if para_text:
-                text_list.append(para_text)
-        first_15_lines = text_list[:5]
-        result = '\n'.join(first_15_lines)
-        final2 = txxt(result,5)
-        return final2
-    else:
-        return ""
+def scrape_wikipedia(kw,summary):
+    summ = "Provide the definition or the meaning of "+kw
+    response =  genai.GenerativeModel("gemini-pro").generate_content(summ)
+    return response.text
 
 
 if __name__ == '__main__':
