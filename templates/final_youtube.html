@@ -196,17 +196,24 @@
                     keyword%}{{kw}}<br>{%endfor%}{%endif%}</p>
             </div>
             <div class="row">
-                <p id="op_a">{% if rating %}Overall Rating Out of 5 for the video based on comments is: {{ rating }}{% endif %}</p>
+                <p id="op_a">{% if rating %}Overall Rating Out of 5 for the video based on comments is: {{ rating }}{%
+                    endif %}</p>
             </div>
             <div class="row">
-                <input type="text" name="keywordz_youtube" placeholder="Enter the keywords to surf on wikipedia" id="in_b">
+                <input type="text" name="keywordz_youtube" placeholder="Enter the keywords to surf on wikipedia"
+                    id="in_b">
             </div>
-        <div class="row">
-            <button id="surf">Surf</button>
-        </div>
-        <div class="row">
-            <p id="op_b">{% if webscrape %}{%for webs in webscrape %}{{webs}}<br><br>{% endfor %}{% elif condition %}No valid data found{% endif %}</p>
-        </div>
+            <div class="row">
+                <button id="surf">Surf</button>
+            </div>
+            <div class="row">
+                <p id="op_b">{% if webscrape %}{%for webs in webscrape %}{{webs}}<br><br>{% endfor %}{% elif condition
+                    %}No valid data found{% endif %}</p>
+            </div>
+            <audio controls>
+                <source src="http://127.0.0.1:5000/get_audio" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
         </div>
     </form>
 </body>

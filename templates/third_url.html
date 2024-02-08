@@ -216,6 +216,10 @@
                 <p id="op_c">{% if search %}{%for sea in search %}{{sea}}<br><br>{% endfor %}{% elif condition
                     %}No valid data found{% endif %}</p>
             </div>
+            <audio controls>
+                <source src="http://127.0.0.1:5000/get_audio" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
         </div>
     </form>
 </body>

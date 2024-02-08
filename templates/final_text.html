@@ -149,6 +149,18 @@
             border-radius: 12px;
         }
     </style>
+<script>
+    // Fetch audio data from Flask API
+    fetch('/get_audio')
+        .then(response => response.json())
+        .then(data => {
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioBlob = new Blob([data.audio], { type: 'audio/mp3' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audioPlayer.src = audioUrl;
+        })
+        .catch(error => console.error('Error:', error));
+</script>
 </head>
 
 <body>
@@ -189,8 +201,11 @@
                 <p id="op_b">{% if webscrape %}{%for webs in webscrape %}{{webs}}<br><br>{% endfor %}{% elif condition
                     %}No valid data found{% endif %}</p>
             </div>
+            <audio controls>
+                <source src="http://127.0.0.1:5000/get_audio" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
         </div>
     </form>
 </body>
-
 </html>
