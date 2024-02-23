@@ -1,20 +1,36 @@
-from flask import Flask, render_template, request, session, redirect, url_for, send_from_directory
-import nltk, requests, torch, fitz, os, logging, re, time
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
+import nltk
+import requests
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sumy.parsers.html import HtmlParser
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer as Summarizer
+from sumy.nlp.stemmers import Stemmer
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 import numpy as np
+import fitz
+from sumy.utils import get_stop_words
 import google.generativeai as genai
 from dotenv import load_dotenv
+import os
+import logging
+import re
+import pandas as pd 
 from youtube_transcript_api import YouTubeTranscriptApi
 from transformers import pipeline, BartForConditionalGeneration, BartTokenizer
+import time
+from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from flask_session import Session
+import base64
 from gtts import gTTS
 
 
@@ -70,13 +86,12 @@ def perform_keyword_analysis(text):
 
 
 def english_text_to_mp3(text):
-    print("Generating audio...")
+    print("generating audio")
     language = 'en'
     speed = False
-    output_path = os.path.join(app.root_path, 'static', 'output.mp3')
     tts = gTTS(text=text, lang=language, slow=speed)
-    tts.save(output_path)
-    return "Done"
+    tts.save("C:\\Users\\Anand\\Desktop\\AI_Project\\internship_arif\\static\\output.mp3")
+    return "done"
 
 @app.route('/get_audio', methods=['GET'])
 def serve_audio():
@@ -192,7 +207,7 @@ def final_pdf():
 
 logging.getLogger("transformers").setLevel(logging.ERROR)
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
-
+# Set TF_ENABLE_ONEDNN_OPTS to 0 to suppress related warnings
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
 model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
@@ -209,7 +224,7 @@ def sentiment_comments(urlll):
     data = []
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--headless") 
+    chrome_options.add_argument("--headless")  # If you want to run Chrome in headless mode 
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -219,12 +234,14 @@ def sentiment_comments(urlll):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
+    # Set the path to the chromedriver.exe file
     chrome_options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+    # Initialize the Chrome driver with chrome_options
     driver = webdriver.Chrome(options=chrome_options)
     with driver:
         wait = WebDriverWait(driver, 15)
         driver.get(f"{link}")
-        for _ in range(12):  
+        for _ in range(12):  # You might need to adjust the number of scrolls
             driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
             time.sleep(5)
 
@@ -240,7 +257,7 @@ def sentiment_comments(urlll):
 
 
 def get_video_id(video_url):
-
+    # Extract video ID from the URL
     match = re.search(r"(?<=v=)[\w-]+", video_url)
     return match.group(0) if match else None
 
