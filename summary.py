@@ -33,8 +33,6 @@ from flask_session import Session
 import base64
 from gtts import gTTS
 
-
-
 api_key = "AIzaSyB83ttl5jk8SAkY0F0Ofq4FB7zdKnzIqhE"
 genai.configure(api_key=api_key)
 nltk.download('stopwords')
