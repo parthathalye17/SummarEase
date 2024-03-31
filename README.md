@@ -13,6 +13,9 @@ YouTube Video Rating: Make informed decisions before watching YouTube videos. Su
 Why Choose Summar-Ease?
 
 Efficiency: Save time and effort with our streamlined tools that deliver results in seconds.
+
 Accuracy: Powered by state-of-the-art AI algorithms, Summar-Ease ensures accurate and reliable outputs.
+
 Versatility: From students and researchers to content creators and professionals, Summar-Ease caters to diverse needs and industries.
+
 User-Friendly Interface: Intuitive design and seamless navigation make Summar-Ease accessible to users of all levels.
